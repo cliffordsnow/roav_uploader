@@ -1,9 +1,5 @@
 #!/bin/bash
 
-WORKINGDIR=/Volumes/SD256/ROAV/foo
-mapillary_user_name="glassman"
-SERVICE="BOTH"
-
 usage() {
 	echo "Usage: $0 [-h help][-r rerun mapillary ][-s mapillary|osc] [-c crop] video_file" 1>&2
 }
@@ -13,11 +9,12 @@ exit_abnormal() {
 	exit 1
 }
 
-image_size() {
-	image_size=`exiftool ${video} | gawk -F ":" '/Image Size/ {print $2}`
+get_image_size() {
+	image_size=`exiftool ${video}.MP4 | gawk -F ":" '/Image Size/ {print $2}'`
 	echo $image_size
 }
 
+source roav.config
 oscexp='^[Oo][Ss][Cc]$'
 mapexp='^[Mm][Aa][Pp][Ii][Ll][Ll][Aa][Rr][Yy]$'
 crop='^[0-9]+[xX][0-9]+$'
@@ -29,11 +26,9 @@ do
 			if [[ $SERVICE =~ $oscexp  ]]
 			then
 				SERVICE="OSC"
-				shift 2
 			elif [[ $SERVICE =~ $mapexp ]]
 			then
 				SERVICE="MAPILLARY"
-				shift 2
 			else
 				echo "Error: must match either OSC or MAPILLARY"
 				exit_abnormal
@@ -45,15 +40,15 @@ do
 				echo "-c must contain width X height for example -c 1000X700"
 				exit_abnormal
 			fi
-			shift 2
 			;;
 		r) RERUNOPT=" --rerun "
-			shift
 			;;
 		h|?) usage
 			;;
 	esac
 done
+
+shift $((OPTIND-1))
 
 #now we need video file as $1
 if [ "$#" -ne 1 ]
@@ -71,12 +66,12 @@ then
 	mkdir -p $WORKINGDIR
 fi
 
-if ! [ -d $WORKINGDIR/jpeg ]
+if ! [ -d ${WORKINGDIR}/jpeg ]
 then
 	mkdir ${WORKINGDIR}/jpeg
 fi
 
-if ! [ -d $WORKINGDIR/output ]
+if ! [ -d ${WORKINGDIR}/output ]
 then
 	mkdir ${WORKINGDIR}/output
 fi
@@ -104,22 +99,43 @@ gawk -f info2csv.awk ${video}.info > ${video_no}.csv
 
 frames=`cat ${video}.info|wc -l`
 
-if [ $CROP ]
-then
-	crop=`echo $CROP | tr "[xX]" ":"`
-	ffmpeg -i ${video}.MP4 -ss 00:00:01 -t ${frames} -r 1 -vf "crop=${crop}" jpeg/${video_no}_%03d.jpeg
-elif [ $image_size == "1280x720" ]
-then
-	ffmpeg -i ${video}.MP4 -ss 00:00:01 -t ${frames} -r 1 -vf "crop=1220:520" jpeg/${video_no}_%03d.jpeg
+#Cropping  1280x720 image to 1920x900`
+#get image size
+get_image_size
+echo ${image_size} | wc -c
+echo "xxx${image_size}xxx"
 
+if [ $CROP ]; then
+	crop=`echo $CROP | tr "[xX]" ":"`
+	echo "Cropping ${image_size} image to ${crop}"
+	ffmpeg -i ${video}.MP4 -ss 00:00:01 -t ${frames} -r 1 -vf "crop=${crop}" jpeg/${video_no}_%03d.jpeg
 else
-	ffmpeg -i ${video}.MP4 -ss 00:00:01 -t ${frames} -r 1 -vf "crop=1920:900" jpeg/${video_no}_%03d.jpeg
+       if [[ "${image_size}" == " 1280x720" ]]; then
+		echo "Cropping ${image_size} image to 1220x520"
+		ffmpeg -i ${video}.MP4 -ss 00:00:01 -t ${frames} -r 1 -vf "crop=1220:520" jpeg/${video_no}_%03d.jpeg
+	else
+		echo "Cropping ${image_size} image to 1920x900"
+		ffmpeg -i ${video}.MP4 -ss 00:00:01 -t ${frames} -r 1 -vf "crop=1920:900" jpeg/${video_no}_%03d.jpeg
+	fi
 fi
 
 # Now we need to add the geotags to each image.
 # exiftool makes it easy to geotag a folder of images. The key is the creation of the .csv file which occured earlier.
 
 exiftool -DateTimeOriginal -GPSLatitude -GPSLongitude -GPSAltitude -GPSspeed -GPSimagedirection -GPSLatitudeRef -GPSLongitudeRef -GPSAltitudeRef -csv=${video_no}.csv -o output/ jpeg/
+
+#remove images near home
+#need to create a optarg for boundary size
+
+echo "Pruning out files within buffer distance"
+python /Volumes/SD256/ROAV/foo/distance.py ${video_no}.csv $HOMELAT $HOMELON .5
+final_img_cnt=`ls output/| wc -l`
+
+if [[ $final_img_cnt -eq 0 ]]
+then
+	echo "No files left for upload"
+	exit
+fi
 
 #Upload to Mapillary
 
