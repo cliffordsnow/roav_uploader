@@ -24,8 +24,6 @@ if(len(sys.argv) != 5):
     print("Error\nUsage: distance.py csv_file homelat homelon buffer")
     sys.exit(1)
 
-origlat=0.0
-origlon=0.0
 homelat=float(sys.argv[2])
 homelon=float(sys.argv[3])
 buffer=float(sys.argv[4])
@@ -36,15 +34,12 @@ with open(sys.argv[1], 'r' ) as exif:
     for row in csvReader:
         lat=float(row[2])
         lon=float(row[3])
+        speed=float(row[6].replace(' mph','',1))
         d=distancekm(lon,lat,homelon,homelat)
-        if(d < buffer):
+        if d < buffer:
             cmd = "rm " + row[0].replace('jpeg','output',1)
             os.system(cmd)
-        elif(origlat != 0.0): 
-            travel=distancekm(lon,lat,origlon,origlat)
-            if(travel > .001):
+        elif speed < .2:
                 cmd = "rm " + row[0].replace('jpeg','output',1)
                 os.system(cmd)
-            origlat = lat
-            origlon = lon
 
