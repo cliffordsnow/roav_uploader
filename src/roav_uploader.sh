@@ -19,7 +19,7 @@ oscexp='^[Oo][Ss][Cc]$'
 mapexp='^[Mm][Aa][Pp][Ii][Ll][Ll][Aa][Rr][Yy]$'
 crop='^[0-9]+[xX][0-9]+$'
 
-while getopts "s:c:rh" options
+while getopts "s:c:rth" options
 do
 	case ${options} in
 		s) SERVICE=${OPTARG}
@@ -42,6 +42,8 @@ do
 			fi
 			;;
 		r) RERUNOPT=" --rerun "
+			;;
+		t) TEST=true
 			;;
 		h|?) usage
 			;;
@@ -135,6 +137,12 @@ if [[ $final_img_cnt -eq 0 ]]
 then
 	echo "No files left for upload"
 	exit
+fi
+
+if [ $TEST = true ]
+then
+	echo "Only a test - no upload to Mapillary or OpenStreetCam"
+	exit 0
 fi
 
 #Upload to Mapillary
