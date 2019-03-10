@@ -4,10 +4,11 @@ BEGIN{FS=","
 	}
 	{ 
 	len = length(FILENAME)
-	if( len = 25)
+	if( len == 25)
 		f = substr(FILENAME,18,3)
 	else
-			f = substr(FILENAME,18,4)
+		f = substr(FILENAME,18,4)
+
 	  datetime = substr($1,1,4) ":" substr($1,5,2) ":" + substr($1,7,2) " " substr($1,10,8)
 	  lat = $2
 	  long = $3 

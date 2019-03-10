@@ -1,7 +1,7 @@
 #!/bin/bash
 
 usage() {
-	echo "Usage: $0 [-h help][-r rerun mapillary ][-s mapillary|osc] [-c crop] video_file" 1>&2
+	echo "Usage: $0 [-h help][-r rerun mapillary ][-s mapillary|osc] [-c crop] [-b buffer] [d stop] [-t test only]  video_file" 1>&2
 }
 
 exit_abnormal() {
@@ -18,8 +18,9 @@ source roav.config
 oscexp='^[Oo][Ss][Cc]$'
 mapexp='^[Mm][Aa][Pp][Ii][Ll][Ll][Aa][Rr][Yy]$'
 crop='^[0-9]+[xX][0-9]+$'
+decimal='^[0-9]*\.[0-9]+$'
 
-while getopts "s:c:rth" options
+while getopts "s:c:b:d:rth" options
 do
 	case ${options} in
 		s) SERVICE=${OPTARG}
@@ -38,6 +39,20 @@ do
 			if ! [[ $CROP =~ $cropexp ]]
 			then
 				echo "-c must contain width X height for example -c 1000X700"
+				exit_abnormal
+			fi
+			;;
+		b) BUFFER=${OPTARG}
+			if ! [[ $BUFFER =~ $decimal ]]
+			then
+				echo "Error: must be a decimal value."
+				exit_abnormal
+			fi
+			;;
+		d) SPEED=${OPTARG}
+			if ! [[ $SPEED =~ $decimal ]]
+			then
+				echo "Error: must be a decimal value."
 				exit_abnormal
 			fi
 			;;
@@ -130,7 +145,7 @@ exiftool -DateTimeOriginal -GPSLatitude -GPSLongitude -GPSAltitude -GPSspeed -GP
 #need to create a optarg for boundary size
 
 echo "Pruning out files within buffer distance"
-python /Volumes/SD256/ROAV/foo/distance.py ${video_no}.csv $HOMELAT $HOMELON .5
+python /Volumes/SD256/ROAV/foo/distance.py ${video_no}.csv $HOMELAT $HOMELON $BUFFER $SPEED
 final_img_cnt=`ls output/| wc -l`
 
 if [[ $final_img_cnt -eq 0 ]]
