@@ -15,6 +15,6 @@ Latest update speeds processing up by not having to copy source video to working
 * gawk
 
 #### Installation
-Move the src files to location directory such as /usr/local/bin.
+Move roav.config to your home directory and modify it to include your home location latitude and longitude, the working directory location and your Mapillary user name.
 
-Move roav.config to your home directory and modify it to include your home location latitude and longitude.
+Move the src files to location directory such as /usr/local/bin.
