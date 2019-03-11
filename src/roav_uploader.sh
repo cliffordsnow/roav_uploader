@@ -13,8 +13,15 @@ get_image_size() {
 	image_size=`exiftool ${video}.MP4 | gawk -F ":" '/Image Size/ {print $2}'`
 	echo $image_size
 }
+full_path() {
+	f_path=$( cd $(dirname $filename); pwd -P)
+}
 
-source roav.config
+get_dir(){
+	dir=$(dirname $filename)
+}
+
+source ~/roav.config
 oscexp='^[Oo][Ss][Cc]$'
 mapexp='^[Mm][Aa][Pp][Ii][Ll][Ll][Aa][Rr][Yy]$'
 crop='^[0-9]+[xX][0-9]+$'
@@ -72,6 +79,10 @@ if [ "$#" -ne 1 ]
 then
 	echo "Error no video file"
         exit_abnormal
+else
+	filename=$1
+	full_path #return f_path
+	get_dir  #returns dir
 fi
 
 
@@ -97,8 +108,8 @@ fi
 #change to mv for production version
 
 
-cp ${input_file}.MP4 $WORKINGDIR
-cp ${input_file}.info $WORKINGDIR
+#cp ${input_file}.MP4 $WORKINGDIR
+#cp ${input_file}.info $WORKINGDIR
 
 
 cd $WORKINGDIR
@@ -112,27 +123,24 @@ video_no=`echo $video|sed -e 's/^20.._...._......_//'`
 
 
 #Creation of the .csv file for geocoding images
-gawk -f info2csv.awk ${video}.info > ${video_no}.csv
+gawk -f info2csv.awk ${dir}/${video}.info > ${video_no}.csv
 
-frames=`cat ${video}.info|wc -l`
+frames=`cat ${dir}/${video}.info|wc -l`
 
-#Cropping  1280x720 image to 1920x900`
 #get image size
 get_image_size
-echo ${image_size} | wc -c
-echo "xxx${image_size}xxx"
 
 if [ $CROP ]; then
 	crop=`echo $CROP | tr "[xX]" ":"`
 	echo "Cropping ${image_size} image to ${crop}"
-	ffmpeg -i ${video}.MP4 -ss 00:00:01 -t ${frames} -r 1 -vf "crop=${crop}" jpeg/${video_no}_%03d.jpeg
+	ffmpeg -i ${dir}/${video}.MP4 -ss 00:00:01 -t ${frames} -r 1 -vf "crop=${crop}" jpeg/${video_no}_%03d.jpeg
 else
        if [[ "${image_size}" == " 1280x720" ]]; then
 		echo "Cropping ${image_size} image to 1220x520"
-		ffmpeg -i ${video}.MP4 -ss 00:00:01 -t ${frames} -r 1 -vf "crop=1220:520" jpeg/${video_no}_%03d.jpeg
+		ffmpeg -i ${dir}/${video}.MP4 -ss 00:00:01 -t ${frames} -r 1 -vf "crop=1220:520" jpeg/${video_no}_%03d.jpeg
 	else
 		echo "Cropping ${image_size} image to 1920x900"
-		ffmpeg -i ${video}.MP4 -ss 00:00:01 -t ${frames} -r 1 -vf "crop=1920:900" jpeg/${video_no}_%03d.jpeg
+		ffmpeg -i ${dir}/${video}.MP4 -ss 00:00:01 -t ${frames} -r 1 -vf "crop=1920:900" jpeg/${video_no}_%03d.jpeg
 	fi
 fi
 
@@ -144,7 +152,7 @@ exiftool -DateTimeOriginal -GPSLatitude -GPSLongitude -GPSAltitude -GPSspeed -GP
 #remove images near home
 #need to create a optarg for boundary size
 
-echo "Pruning out files within buffer distance"
+echo "Pruning out files within buffer distance or when stopped"
 python /Volumes/SD256/ROAV/foo/distance.py ${video_no}.csv $HOMELAT $HOMELON $BUFFER $SPEED
 final_img_cnt=`ls output/| wc -l`
 
