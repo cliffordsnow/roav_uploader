@@ -22,6 +22,7 @@ get_dir(){
 }
 
 source ~/roav.config
+tool_dir="~/bin/roav"
 oscexp='^[Oo][Ss][Cc]$'
 mapexp='^[Mm][Aa][Pp][Ii][Ll][Ll][Aa][Rr][Yy]$'
 crop='^[0-9]+[xX][0-9]+$'
@@ -123,7 +124,7 @@ video_no=`echo $video|sed -e 's/^20.._...._......_//'`
 
 
 #Creation of the .csv file for geocoding images
-gawk -f info2csv.awk ${dir}/${video}.info > ${video_no}.csv
+gawk -f ~{tool_dir}/info2csv.awk ${dir}/${video}.info > ${video_no}.csv
 
 frames=`cat ${dir}/${video}.info|wc -l`
 
@@ -153,7 +154,7 @@ exiftool -DateTimeOriginal -GPSLatitude -GPSLongitude -GPSAltitude -GPSspeed -GP
 #need to create a optarg for boundary size
 
 echo "Pruning out files within buffer distance or when stopped"
-python /Volumes/SD256/ROAV/foo/distance.py ${video_no}.csv $HOMELAT $HOMELON $BUFFER $SPEED
+python ${tool_dir}/distance.py ${video_no}.csv $HOMELAT $HOMELON $BUFFER $SPEED
 final_img_cnt=`ls output/| wc -l`
 
 if [[ $final_img_cnt -eq 0 ]]
