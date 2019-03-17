@@ -17,4 +17,4 @@ Latest update speeds processing up by not having to copy source video to working
 #### Installation
 Move roav.config to your home directory and modify it to include your home location latitude and longitude, the working directory location and your Mapillary user name.
 
-Move the src files to location directory such as /usr/local/bin.
+Move roav_uploader.sh to a directory in your $PATH such as /usr/local/bin. Move src/roav to tool_dir specified in roav.config.
