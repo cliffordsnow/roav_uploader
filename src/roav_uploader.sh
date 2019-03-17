@@ -10,7 +10,7 @@ exit_abnormal() {
 }
 
 get_image_size() {
-	image_size=`exiftool ${video}.MP4 | gawk -F ":" '/Image Size/ {print $2}'`
+	image_size=`exiftool ${dir}/${video}.MP4 | gawk -F ":" '/Image Size/ {print $2}'`
 	echo $image_size
 }
 full_path() {
@@ -22,7 +22,7 @@ get_dir(){
 }
 
 source ~/roav.config
-tool_dir="~/bin/roav"
+tool_dir="/Users/cliffordsnow/bin/roav"
 oscexp='^[Oo][Ss][Cc]$'
 mapexp='^[Mm][Aa][Pp][Ii][Ll][Ll][Aa][Rr][Yy]$'
 crop='^[0-9]+[xX][0-9]+$'
@@ -82,7 +82,10 @@ then
         exit_abnormal
 else
 	filename=$1
-	full_path #return f_path
+	if ! [[ $filename =~ "^\/.*MP4" ]]
+	then
+		full_path #return f_path
+	fi
 	get_dir  #returns dir
 fi
 
@@ -109,9 +112,6 @@ fi
 #change to mv for production version
 
 
-#cp ${input_file}.MP4 $WORKINGDIR
-#cp ${input_file}.info $WORKINGDIR
-
 
 cd $WORKINGDIR
 
@@ -122,9 +122,8 @@ rm *.csv
 
 video_no=`echo $video|sed -e 's/^20.._...._......_//'`
 
-
 #Creation of the .csv file for geocoding images
-gawk -f ~{tool_dir}/info2csv.awk ${dir}/${video}.info > ${video_no}.csv
+gawk -f ${tool_dir}/info2csv.awk ${dir}/${video}.info > ${video_no}.csv
 
 frames=`cat ${dir}/${video}.info|wc -l`
 
@@ -163,7 +162,7 @@ then
 	exit
 fi
 
-if [ $TEST = true ]
+if [ "$TEST" = true ]
 then
 	echo "Only a test - no upload to Mapillary or OpenStreetCam"
 	exit 0
