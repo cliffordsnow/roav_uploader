@@ -109,6 +109,7 @@ cd $WORKINGDIR
 
 rm jpeg/*
 rm output/*
+rm output/.mapillary
 rm *.csv
 
 
@@ -160,6 +161,19 @@ then
 	exit 0
 fi
 
+#Upload to OpenStreetCam
+
+if [ ${SERVICE} == "BOTH" ] || [ ${SERVICE} == "OSC" ]
+then
+	python3 ~/Development/upload-scripts/osc_tools.py upload -p output/
+	if [[ $? -ne 0 ]] ; then
+		echo "OpenStreetCam upload failed"
+		exit 1
+	else
+		echo "OpenStreetCam Upload Success"
+	fi
+fi
+
 #Upload to Mapillary
 
 if [ ${SERVICE} == "BOTH" ] || [ ${SERVICE} == "MAPILLARY" ]
@@ -175,15 +189,3 @@ then
 	exiftool -ImageDescription=  output/
 fi
 
-#Upload to OpenStreetCam
-
-if [ ${SERVICE} == "BOTH" ] || [ ${SERVICE} == "OSC" ]
-then
-	python3 ~/Development/upload-scripts/osc_tools.py upload -p output/
-	if [[ $? -ne 0 ]] ; then
-		echo "OpenStreetCam upload failed"
-		exit 1
-	else
-		echo "OpenStreetCam Upload Success"
-	fi
-fi
