@@ -139,13 +139,16 @@ fi
 
 # Now we need to add the geotags to each image.
 # exiftool makes it easy to geotag a folder of images. The key is the creation of the .csv file which occured earlier.
+# first add make and model
+
+exiftool -make='Anker' -model='ROAV Dashcam C1' jpeg/
 
 exiftool -DateTimeOriginal -GPSLatitude -GPSLongitude -GPSAltitude -GPSspeed -GPSimagedirection -GPSLatitudeRef -GPSLongitudeRef -GPSAltitudeRef -csv=${video_no}.csv -o output/ jpeg/
 
 #remove images near home
 #need to create a optarg for boundary size
 
-echo "Pruning out files within buffer distance or when stopped"
+echo "Pruning out files within buffer distance"
 python ${TOOLDIR}/distance.py ${video_no}.csv $HOMELAT $HOMELON $BUFFER
 final_img_cnt=`ls output/| wc -l`
 
