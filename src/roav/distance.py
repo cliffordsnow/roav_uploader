@@ -20,14 +20,13 @@ def distancekm(lon1, lat1, lon2, lat2):
     return km
 
 
-if(len(sys.argv) != 6):
-    print("Error\nUsage: distance.py csv_file homelat homelon buffer stop")
+if(len(sys.argv) != 5):
+    print("Error\nUsage: distance.py csv_file homelat homelon buffer")
     sys.exit(1)
 
 homelat=float(sys.argv[2])
 homelon=float(sys.argv[3])
 buffer=float(sys.argv[4])
-stop=float(sys.argv[5])
 
 with open(sys.argv[1], 'r' ) as exif:
     csvReader = csv.reader(exif)
@@ -40,7 +39,4 @@ with open(sys.argv[1], 'r' ) as exif:
         if d < buffer:
             cmd = "rm " + row[0].replace('jpeg','output',1)
             os.system(cmd)
-        elif speed < stop:
-                cmd = "rm " + row[0].replace('jpeg','output',1)
-                os.system(cmd)
 

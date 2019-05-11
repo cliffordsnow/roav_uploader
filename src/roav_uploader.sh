@@ -1,7 +1,7 @@
 #!/bin/bash
 
 usage() {
-	echo "Usage: $0 [-h help][-r rerun mapillary ][-s mapillary|osc] [-c crop] [-b buffer] [d stop] [-t test only]  video_file" 1>&2
+	echo "Usage: $0 [-h help][-r rerun mapillary ][-s mapillary|osc] [-c crop] [-b buffer] [-t test only]  video_file" 1>&2
 }
 
 exit_abnormal() {
@@ -51,13 +51,6 @@ do
 			;;
 		b) BUFFER=${OPTARG}
 			if ! [[ $BUFFER =~ $decimal ]]
-			then
-				echo "Error: must be a decimal value."
-				exit_abnormal
-			fi
-			;;
-		d) SPEED=${OPTARG}
-			if ! [[ $SPEED =~ $decimal ]]
 			then
 				echo "Error: must be a decimal value."
 				exit_abnormal
@@ -152,7 +145,7 @@ exiftool -DateTimeOriginal -GPSLatitude -GPSLongitude -GPSAltitude -GPSspeed -GP
 #need to create a optarg for boundary size
 
 echo "Pruning out files within buffer distance or when stopped"
-python ${TOOLDIR}/distance.py ${video_no}.csv $HOMELAT $HOMELON $BUFFER $SPEED
+python ${TOOLDIR}/distance.py ${video_no}.csv $HOMELAT $HOMELON $BUFFER
 final_img_cnt=`ls output/| wc -l`
 
 if [[ $final_img_cnt -eq 0 ]]
