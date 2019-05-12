@@ -2,7 +2,10 @@
 ## ROAV Dashcam C1 Pro Uploader script for Mapillary and OpenStreetCam
 
 The script takes the ROAV dashcam video, converts it to individual jpeg images, adds geotags and then uploads to Mapillary and OpenStreetCam.
-Features include not transmitting images near a point, such as your home and not transmitting images if there is little or no movement, i.e. your car isn't moving.
+Features include:
+*  not transmitting images near a point such as your home
+*  send to both Mapillary and OpenStreetCam or just one
+*  test mode to verify output is correct
 
 Latest update speeds processing up by not having to copy source video to working directory.
 
