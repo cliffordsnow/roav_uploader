@@ -36,7 +36,7 @@ with open(sys.argv[1], 'r' ) as exif:
         lon=float(row[3])
         speed=float(row[6].replace(' mph','',1))
         d=distancekm(lon,lat,homelon,homelat)
-        if d < buffer:
+        if d < buffer or lat == 0 and lon == 0:
             cmd = "rm " + row[0].replace('jpeg','output',1)
             os.system(cmd)
 
