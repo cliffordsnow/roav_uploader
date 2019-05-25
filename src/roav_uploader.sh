@@ -10,7 +10,7 @@ exit_abnormal() {
 }
 
 get_image_size() {
-	image_size=`exiftool ${dir}/${video}.MP4 | gawk -F ":" '/Image Size/ {print $2}'`
+	image_size=`exiftool "${dir}/${video}.MP4" | gawk -F ":" '/Image Size/ {print $2}'`
 	echo $image_size
 }
 full_path() {
@@ -85,19 +85,19 @@ fi
 input_file=`echo $1|sed -e 's/.MP4//'`
 video=`basename -s .MP4 $1`
 
-if ! [ -d $WORKINGDIR ]
+if ! [ -d "$WORKINGDIR" ]
 then
-	mkdir -p $WORKINGDIR
+	mkdir -p "$WORKINGDIR"
 fi
 
-if ! [ -d ${WORKINGDIR}/jpeg ]
+if ! [ -d "${WORKINGDIR}/jpeg" ]
 then
-	mkdir ${WORKINGDIR}/jpeg
+	mkdir "${WORKINGDIR}/jpeg"
 fi
 
-if ! [ -d ${WORKINGDIR}/output ]
+if ! [ -d "${WORKINGDIR}/output" ]
 then
-	mkdir ${WORKINGDIR}/output
+	mkdir "${WORKINGDIR}/output"
 fi
 
 #this is for testing purposes
@@ -105,7 +105,7 @@ fi
 
 
 
-cd $WORKINGDIR
+cd "$WORKINGDIR"
 
 rm jpeg/*
 rm output/*
@@ -116,7 +116,7 @@ rm *.csv
 video_no=`echo $video|sed -e 's/^20.._...._......_//'`
 
 #Creation of the .csv file for geocoding images
-gawk -f ${TOOLDIR}/info2csv.awk ${dir}/${video}.info > ${video_no}.csv
+gawk -f "${TOOLDIR}/info2csv.awk" ${dir}/${video}.info > ${video_no}.csv
 
 frames=`cat ${dir}/${video}.info|wc -l`
 
@@ -148,8 +148,8 @@ exiftool -DateTimeOriginal -GPSLatitude -GPSLongitude -GPSAltitude -GPSspeed -GP
 #remove images near home
 #need to create a optarg for boundary size
 
-echo "Pruning out files within buffer distance"
-python ${TOOLDIR}/distance.py ${video_no}.csv $HOMELAT $HOMELON $BUFFER
+echo "Pruning out files within buffer distance ${BUFFER}km"
+python "${TOOLDIR}/distance.py" ${video_no}.csv $HOMELAT $HOMELON $BUFFER
 final_img_cnt=`ls output/| wc -l`
 
 if [[ $final_img_cnt -eq 0 ]]
