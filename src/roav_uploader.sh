@@ -126,16 +126,12 @@ get_image_size
 if [ $CROP ]; then
 	crop=`echo $CROP | tr "[xX]" ":"`
 	echo "Cropping ${image_size} image to ${crop}"
-	ffmpeg -i ${dir}/${video}.MP4 -ss 00:00:01 -t ${frames} -r 1 -vf "crop=${crop}" -qscale:v $JPEGQUALITY jpeg/${video_no}_%03d.jpeg
+	CROPCLAUSE="-vf crop=${crop} "
 else
-       if [[ "${image_size}" == " 1280x720" ]]; then
-		echo "Cropping ${image_size} image to 1220x520"
-		ffmpeg -i ${dir}/${video}.MP4 -ss 00:00:01 -t ${frames} -r 1 -vf "crop=1220:520" -qscale:v $JPEGQUALITY jpeg/${video_no}_%03d.jpeg
-	else
-		echo "Cropping ${image_size} image to 1920x900"
-		ffmpeg -i ${dir}/${video}.MP4 -ss 00:00:01 -t ${frames} -r 1 -vf "crop=1920:900" -qscale:v $JPEGQUALITY jpeg/${video_no}_%03d.jpeg
-	fi
+	echo "Not Cropping ${image_size} image"
 fi
+
+ffmpeg -i ${dir}/${video}.MP4 -ss 00:00:01 -t ${frames} -r 1 $CROPCLAUSE -qscale:v $JPEGQUALITY jpeg/${video_no}_%03d.jpeg
 
 # Now we need to add the geotags to each image.
 # exiftool makes it easy to geotag a folder of images. The key is the creation of the .csv file which occured earlier.
