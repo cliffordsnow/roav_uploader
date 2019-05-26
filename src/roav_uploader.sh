@@ -126,14 +126,14 @@ get_image_size
 if [ $CROP ]; then
 	crop=`echo $CROP | tr "[xX]" ":"`
 	echo "Cropping ${image_size} image to ${crop}"
-	ffmpeg -i ${dir}/${video}.MP4 -ss 00:00:01 -t ${frames} -r 1 -vf "crop=${crop}" jpeg/${video_no}_%03d.jpeg
+	ffmpeg -i ${dir}/${video}.MP4 -ss 00:00:01 -t ${frames} -r 1 -vf "crop=${crop}" -qscale:v 1 jpeg/${video_no}_%03d.jpeg
 else
        if [[ "${image_size}" == " 1280x720" ]]; then
 		echo "Cropping ${image_size} image to 1220x520"
-		ffmpeg -i ${dir}/${video}.MP4 -ss 00:00:01 -t ${frames} -r 1 -vf "crop=1220:520" jpeg/${video_no}_%03d.jpeg
+		ffmpeg -i ${dir}/${video}.MP4 -ss 00:00:01 -t ${frames} -r 1 -vf "crop=1220:520" -qscale:v 1 jpeg/${video_no}_%03d.jpeg
 	else
 		echo "Cropping ${image_size} image to 1920x900"
-		ffmpeg -i ${dir}/${video}.MP4 -ss 00:00:01 -t ${frames} -r 1 -vf "crop=1920:900" jpeg/${video_no}_%03d.jpeg
+		ffmpeg -i ${dir}/${video}.MP4 -ss 00:00:01 -t ${frames} -r 1 -vf "crop=1920:900" -qscale:v 1 jpeg/${video_no}_%03d.jpeg
 	fi
 fi
 
