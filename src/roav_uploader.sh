@@ -109,7 +109,7 @@ cd "$WORKINGDIR"
 
 rm jpeg/*
 rm output/*
-rm output/.mapillary
+rm -r output/.mapillary/*
 rm *.csv
 
 
