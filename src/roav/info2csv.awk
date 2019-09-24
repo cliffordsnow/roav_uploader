@@ -1,14 +1,13 @@
 BEGIN{FS=","
-	last_pattern="_[0-9]+[A-Z]*\.info$"
+	last_pattern="20[12][90]_[0-9]+_[0-9]+_[0-9]+[A-Z]*.info$"
        	i = 1
        	printf "sourcefile,datetimeoriginal,gpslatitude,gpslongitude,gpsaltitude,gpsspeed,gpsimgdirection,gpslatituderef,gpslongituderef,gpsaltituderef,gpsimgdirectionref\n"
 	}
 	{ 
-	len = length(FILENAME)
-	where = match(FILENAME,last_pattern) + 1
-	pattern_len = len - where - 4
+	st = match(FILENAME,last_pattern) 
+	f1 = substr(FILENAME,st)
 	
-	f = substr(FILENAME,where,pattern_len)
+	f = substr(f1,1,length(f1) - 5)
 
 	  datetime = substr($1,1,4) ":" substr($1,5,2) ":" + substr($1,7,2) " " substr($1,10,8)
 	  lat = $2

@@ -66,6 +66,7 @@ do
 done
 
 shift $((OPTIND-1))
+echo `date` $1 >> mp4.log
 
 #now we need video file as $1
 if [ "$#" -ne 1 ]
@@ -113,10 +114,12 @@ rm -r output/.mapillary/*
 rm *.csv
 
 
-video_no=`echo $video|sed -e 's/^20.._...._......_//'`
+#video_no=`echo $video|sed -e 's/^20.._...._......_//'`
+video_no=`echo $video`
 
 #Creation of the .csv file for geocoding images
 gawk -f "${TOOLDIR}/info2csv.awk" ${dir}/${video}.info > ${video_no}.csv
+
 
 frames=`cat ${dir}/${video}.info|wc -l`
 
@@ -177,7 +180,8 @@ fi
 
 if [ ${SERVICE} == "BOTH" ] || [ ${SERVICE} == "MAPILLARY" ]
 then
-	mapillary_tools process_and_upload $RERUNOPT --import_path /Volumes/SD256/ROAV/foo/output/ --user_name ${mapillary_user_name}
+	mapillary_tools process_and_upload $RERUNOPT --import_path output/ --user_name ${mapillary_user_name}
+	#mapillary_tools process_and_upload --rerun --import_path /Volumes/SD256/ROAV/foo/output/ --user_name ${mapillary_user_name}
 	if [[ $? -ne 0 ]] ; then
 		echo "Mapillary process and upload failed"
 		exit 1
